@@ -2,19 +2,28 @@ const express = require('express');
 const {exec} = require('child_process');
 const moment = require('moment');
 const app = express();
+// Decide which direction to go with this: env variables, command line arguments, or both (messy?)
+require('dotenv').config();
+const args = process.argv.slice(2);
+
+const config = {
+  port: parseInt(args[0]) || process.env.PORT,
+  eaddress: args[1] || process.env.EMAIL
+};
+
 
 app.get('/sendEmail', (req, res) => {
   const requestStart = Date.now();
   const formatTime = () => { return moment(Date.now()).toString().split(' ').slice(0, 4).join(' ')};
+
 /*
 For some reason, this breaks when the time string is included. #slice(0,4) and (5, ...) work, but
 renders empty string if [4] is included. It also breaks when using the momentjs #format() method.
 In the meantime, the time the email was received will have to suffice.
 */
-  //let command = `echo "${formatTime()}" | ssmtp -F "Motion Detected" jamesjelenko@gmail.com`;
 
   const sendEmail = (fileString) => {
-    let exc = `echo -e "to: jamesjelenko@gmail.com\nsubject: MOTION DETECTED: ${formatTime()}\n"| (cat - && uuencode ./img/${fileString}.jpg ${fileString}.jpg) | ssmtp jamesjelenko@gmail.com`;
+    let exc = `echo -e "to: ${config.eaddress}\nsubject: MOTION DETECTED: ${formatTime()}\n"| (cat - && uuencode ./img/${fileString}.jpg ${fileString}.jpg) | ssmtp ${config.eaddress}`;
     console.log(`Sending email: \n ${exc}`);
     exec(exc, (err, stdout, stderr) => {
       if (err || stderr) console.log(err, stderr);
@@ -35,20 +44,12 @@ In the meantime, the time the email was received will have to suffice.
   }
 
 
-/*
-  exec(command, (err, stdout, stderr) => {
-    if (err || stderr) {
-      console.log(err, stderr);
-    }
-    if (stdout) {
-      console.log(stdout);
-    }
-  })
-*/
   takePic();
   res.end();
 });
 
-app.listen(3030, ()=> {
-  console.log('listening on 3030');
+app.listen(config.port, ()=> {
+  console.log(`listening on ${config.port}`);
 })
+
+
