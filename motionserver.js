@@ -8,7 +8,7 @@ const args = process.argv.slice(2);
 
 const config = {
   port: parseInt(args[0]) || process.env.PORT,
-  eaddress: args[1] || process.env.EMAIL
+  eaddress: args[1] || process.env.EMAIL,
 };
 
 
