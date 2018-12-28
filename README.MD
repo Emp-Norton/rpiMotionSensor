@@ -12,6 +12,7 @@ Capture Node:
 
 
 TODO: 
+ - Immediate: Write to error log
  - Servo mount for camera
  - PTZ as much as is possible
  - Web interface controls and streaming
