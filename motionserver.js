@@ -1,12 +1,24 @@
 
 const express = require('express');
-const {exec} = require('child_process');
 const moment = require('moment');
 const app = express();
-const fs = require('fs');
 const helpers = require('./helpers/serverHelpers');
-// MAJOR ISSUE: the way I'm using child processes is flawed, I'm not closing them or something.
+// MAJOR ISSUE: the way I'm using child processes is flawed, I'm not closing them correctly (or at all)..
 // This causes nodemon to error out (ADDRINUSE). Look at SIGINT / SIGQUIT / closing processes for fix.
+
+/*
+TODO:
+  - speed up encoding
+  - save to remote HD
+  - fix issue above
+  - npm start command line args
+  - finish cleanup / remove vestigial dependencies
+  - boot on launch
+  - major work on the python section
+    - logging working
+    - keyboard interrupt
+    - ...
+*/
 require('dotenv').config();
 const args = process.argv.slice(2);
 
@@ -16,7 +28,7 @@ const config = {
 };
 
 app.get('/sendEmail', (req, res) => {
-  helpers.writeLog(`Served request @ ${moment(Date.now())}.`, './logs/email-logs.txt');
+  helpers.writeLog(`Serving request @ ${moment(Date.now())}.`, './logs/email-logs.txt');
   helpers.takePic();
   res.end('Request finished');
 });
