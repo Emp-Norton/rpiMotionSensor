@@ -5,9 +5,8 @@ const moment = require('moment');
 const app = express();
 const fs = require('fs');
 const helpers = require('./helpers/serverHelpers');
-
-// Decide which direction to go with this: env variables, command line arguments, or both (messy?)
-// passing arguments when using npm start? Config file?
+// MAJOR ISSUE: the way I'm using child processes is flawed, I'm not closing them or something.
+// This causes nodemon to error out (ADDRINUSE). Look at SIGINT / SIGQUIT / closing processes for fix.
 require('dotenv').config();
 const args = process.argv.slice(2);
 
@@ -17,20 +16,11 @@ const config = {
 };
 
 app.get('/sendEmail', (req, res) => {
-
-
-  const eventString = `Request received at ${moment(Date.now())}:\n`;
-  fs.appendFile('./logs/email-logs.txt', eventString, (err) => {
-    if (err) console.log(err) // there should be a high order error logging function for all of this
-    console.log('Request logged');
-  })
-
+  helpers.writeLog(`Served request @ ${moment(Date.now())}.`, './logs/email-logs.txt');
   helpers.takePic();
-  res.end();
+  res.end('Request finished');
 });
 
 app.listen(config.port, ()=> {
   console.log(`listening on ${config.port}`);
-})
-
-
+});
