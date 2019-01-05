@@ -3,12 +3,15 @@ import os
 import time
 import sys
 
+
 targetIp = str(sys.argv[1])
 targetPort = str(sys.argv[2])
 pir = MotionSensor(4)
+logFile = "/logs/motion/motion-sensor-log.txt"
 
 def alert():
     cmd = "curl %s:%s/sendEmail" % (targetIp, targetPort)
+    print(cmd)
     os.system(cmd)
 
 def main():
@@ -16,9 +19,12 @@ def main():
     pir.wait_for_motion()
 
 
-try:
-   while True:
-	main()
-
-except KeyboardInterrupt:
-    print("Quitting")
+while True:
+    try:
+        main()
+    except Exception, e:
+	errorString = "Error. Check log %s" % (logFile)
+        print(errorString)
+	f = open(logFile, 'w')
+	f.write(e)
+	f.close()
